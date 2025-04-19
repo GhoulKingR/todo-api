@@ -180,11 +180,6 @@ async def add_item(
 
     try:
         conn = await create_connection()
-    except:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return {"message": "Internal server error"}
-
-    try:
         await conn.execute(
             "INSERT INTO todoItems (title, description, userid) VALUES (%s, %s, %s)",
             (item.title, item.description, token_obj["_id"]),
@@ -276,11 +271,6 @@ async def delete_item(
 
     try:
         conn = await create_connection()
-    except:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return {"message": "Internal server error"}
-
-    try:
         await conn.execute(
             "DELETE FROM todoItems WHERE itemid = %s AND userid = %s",
             (id, token_obj["_id"]),
