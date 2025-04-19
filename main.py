@@ -34,7 +34,11 @@ With this API you can:
 - delete an item (Requires authentication)
 """
 
-app = FastAPI(title="Todo API", description=description)
+app = FastAPI(
+    title="Todo API",
+    description=description,
+    license_info={"name": "MIT License", "identifier": "MIT"},
+)
 
 
 def create_connection():
