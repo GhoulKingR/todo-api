@@ -75,7 +75,7 @@ async def login(user: User, response: Response):
     return {"message": "incorrect username/password"}
 
 
-@app.post("/api/auth/create account")
+@app.post("/api/auth/signup")
 async def create_account(user: User, response: Response):
     try:
         conn = await create_connection()
