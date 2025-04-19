@@ -2,6 +2,7 @@ from fastapi import FastAPI, Header, status, Response
 from typing import Annotated
 from pydantic import BaseModel
 import psycopg
+import hashlib
 from jwt_utility import generate_token, validate_token
 
 
@@ -55,9 +56,10 @@ async def login(user: User, response: Response):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
 
+    password = hashlib.sha256(user.password.encode()).hexdigest()
     curr = await conn.execute(
         "SELECT * FROM users WHERE username = %s AND password = %s",
-        (user.username, user.password),
+        (user.username, password),
     )
     result = await curr.fetchone()
     if result:
@@ -84,9 +86,10 @@ async def create_account(user: User, response: Response):
         return {"message": "Internal server error"}
 
     try:
+        password = hashlib.sha256(user.password.encode()).hexdigest()
         await conn.execute(
             "INSERT INTO users (username, password) VALUES (%s, %s);",
-            (user.username, user.password),
+            (user.username, password),
         )
         await conn.commit()
         curr = await conn.execute("Select lastval();")
