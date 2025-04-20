@@ -1,9 +1,14 @@
 from fastapi import FastAPI, Header, status, Response
 from typing import Annotated
 from pydantic import BaseModel
+from jwt_utility import generate_token, validate_token
+from dotenv import load_dotenv
+
 import psycopg
 import hashlib
-from jwt_utility import generate_token, validate_token
+import os
+
+load_dotenv()
 
 
 class Item(BaseModel):
@@ -43,16 +48,19 @@ app = FastAPI(
 
 
 def create_connection():
-    return psycopg.AsyncConnection.connect(
-        "postgres://postgres:password@127.0.0.1:5432/todoapp"
-    )
+    db_url = os.environ.get("DB_URL")
+    if db_url == None:
+        raise ValueError("DB_URL is a required environment variable")
+
+    return psycopg.AsyncConnection.connect(db_url)
 
 
 @app.post("/api/auth/login")
 async def login(user: User, response: Response):
     try:
         conn = await create_connection()
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
 
@@ -81,7 +89,8 @@ async def login(user: User, response: Response):
 async def create_account(user: User, response: Response):
     try:
         conn = await create_connection()
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
 
@@ -102,7 +111,8 @@ async def create_account(user: User, response: Response):
                 }
             ),
         }
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_409_CONFLICT
         return {"message": "username already exists"}
 
@@ -111,13 +121,15 @@ async def create_account(user: User, response: Response):
 async def root(authorization: Annotated[str | None, Header()], response: Response):
     try:
         token_obj = validate_token(authorization)
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message": "unauthorized"}
 
     try:
         conn = await create_connection()
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
 
@@ -142,13 +154,15 @@ async def get_item(
 ):
     try:
         token_obj = validate_token(authorization)
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message": "unauthorized"}
 
     try:
         conn = await create_connection()
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
 
@@ -177,7 +191,8 @@ async def add_item(
 ):
     try:
         token_obj = validate_token(authorization)
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message": "unauthorized"}
 
@@ -198,7 +213,8 @@ async def add_item(
 
         await conn.close()
         return new_item
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         await conn.close()
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
@@ -213,13 +229,15 @@ async def change_item(
 ):
     try:
         token_obj = validate_token(authorization)
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message": "unauthorized"}
 
     try:
         conn = await create_connection()
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
 
@@ -256,7 +274,8 @@ async def change_item(
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"message": f"todo item does not exist"}
 
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         await conn.close()
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
@@ -268,7 +287,8 @@ async def delete_item(
 ):
     try:
         token_obj = validate_token(authorization)
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return {"message": "unauthorized"}
 
@@ -282,7 +302,8 @@ async def delete_item(
         await conn.close()
 
         return {"message": "successful"}
-    except:
+    except Exception as e:
+        print("Error: " + str(e))
         await conn.close()
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": "Internal server error"}
