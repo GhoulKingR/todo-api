@@ -120,7 +120,7 @@ async def create_account(user: User, response: Response):
 @app.get("/api/todos")
 async def root(authorization: Annotated[str | None, Header()], response: Response):
     try:
-        token_obj = validate_token(authorization)
+        token_obj = validate_token(authorization.split(" ")[1])
     except Exception as e:
         print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -190,7 +190,7 @@ async def add_item(
     item: Item, authorization: Annotated[str | None, Header()], response: Response
 ):
     try:
-        token_obj = validate_token(authorization)
+        token_obj = validate_token(authorization.split(" ")[1])
     except Exception as e:
         print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -228,7 +228,7 @@ async def change_item(
     response: Response,
 ):
     try:
-        token_obj = validate_token(authorization)
+        token_obj = validate_token(authorization.split(" ")[1])
     except Exception as e:
         print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -286,7 +286,7 @@ async def delete_item(
     id, authorization: Annotated[str | None, Header()], response: Response
 ):
     try:
-        token_obj = validate_token(authorization)
+        token_obj = validate_token(authorization.split(" ")[1])
     except Exception as e:
         print("Error: " + str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED

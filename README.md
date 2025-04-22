@@ -66,7 +66,7 @@ For example:
 
 ```js
 const myHeaders = new Headers();
-myHeaders.append("Authorization", "TOKEN_TEXT");
+myHeaders.append("Authorization", "Bearer [TOKEN_TEXT]");
 
 const requestOptions = {
   method: "GET",
@@ -80,9 +80,7 @@ fetch("http://127.0.0.1:8000/api/todos", requestOptions)
   .catch((error) => console.error(error));
 ```
 
-With this example, you can log all the todos created by the user identified by `TOKEN_TEXT`.
-
-To get the token, you can use an example like this:
+Replacing `[TOKEN_TEXT]` with the token gotten from the authentication APIs like the login API below:
 
 ```js
 const myHeaders = new Headers();
